@@ -1,17 +1,15 @@
 const express = require("express");
+const userRouter = require("./routes/userRoutes");
 
 const app = express();
-const PORT = 3000;
 
-app.get("/", (req, res) => {
-  res.status(200);
-  res.send("Test first");
-});
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
+}
 
-app.listen(PORT, (error) => {
-  if (!error)
-    console.log(
-      "Server is Successfully Running, and App is listening on port " + PORT
-    );
-  else console.log("Error occurred, server can't start", error);
-});
+app.use(express.json());
+
+// ROUTES
+app.use("/users", userRouter);
+
+module.exports = app;
