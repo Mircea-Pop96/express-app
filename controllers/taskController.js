@@ -1,6 +1,18 @@
 const catchAsync = require("../utils/catchAsync");
 const Task = require("../models/taskModel");
 const AppError = require("../utils/appError");
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+const upload = multer({ storage: storage });
 
 exports.getAllTasks = catchAsync(async (req, res, next) => {
   const tasks = await Task.find({});
@@ -15,13 +27,23 @@ exports.getAllTasks = catchAsync(async (req, res, next) => {
 });
 
 exports.createTask = catchAsync(async (req, res, next) => {
-  const newTask = await Task.create(req.body);
+  upload.single("file")(req, res, async (err) => {
+    const newTaskData = {
+      ...req.body,
+      file: {
+        filename: req.file.filename,
+        path: req.file.path,
+      },
+    };
 
-  res.status(200).json({
-    status: "success",
-    data: {
-      newTask,
-    },
+    const newTask = await Task.create(newTaskData);
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        newTask,
+      },
+    });
   });
 });
 

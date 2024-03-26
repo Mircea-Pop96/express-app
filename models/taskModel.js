@@ -25,7 +25,10 @@ const taskSchema = new Schema(
       enum: ["Pending", "Completed", "Cancel"],
       default: "Pending",
     },
-    file: {},
+    file: {
+      filename: String,
+      path: String,
+    },
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
